@@ -6,15 +6,6 @@ export default function ToolDetailTable() {
   const [level, setLevel] = useState('1') // レベル
   const [mark, setMark] = useState('0') // クリアマーク
   const [score, setScore] = useState('0') //スコア
-  const tool = {
-    path: "/tools/json",
-  }
-
-  const music_info = {
-    level: 0,
-    clear_mark: "",
-    score: 0
-  }
 
   // レベル一覧
   const levels = [
@@ -128,12 +119,12 @@ export default function ToolDetailTable() {
       </div>
 
       <td className="px-4 py-3">
-        <a
-          href={tool.path}
+        <button
+          onClick={() => true}
           className="inline-block px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
         >
           Open
-        </a>
+        </button>
       </td>
     </div >
   )
