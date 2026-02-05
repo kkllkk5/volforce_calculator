@@ -1,11 +1,14 @@
 'use client'
 
 import { useState } from 'react'
+import { vf_calc } from '@/lib/vf_calc'
 
 export default function ToolDetailTable() {
   const [level, setLevel] = useState('1') // レベル
   const [mark, setMark] = useState('0') // クリアマーク
   const [score, setScore] = useState('0') //スコア
+
+  const [vf, setVf] = useState('') // 単曲VF
 
   // レベル一覧
   const levels = [
@@ -61,7 +64,7 @@ export default function ToolDetailTable() {
 
   // クリアマーク一覧
   const clear_marks = [
-    { label: "PLAYED", value: "0" },
+    { label: "TRACK CRASH", value: "0" },
     { label: "COMP", value: "1" },
     { label: "EX COMP(ハード)", value: "2" },
     { label: "MAX COMP(エクハ)", value: "3" },
@@ -118,14 +121,40 @@ export default function ToolDetailTable() {
         </table>
       </div>
 
-      <td className="px-4 py-3">
+      <div>
         <button
-          onClick={() => true}
+          onClick={(_) => setVf(vf_calc(level, mark, score))}
           className="inline-block px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
         >
-          Open
+          実行
         </button>
-      </td>
+
+      </div>
+
+      <div className="overflow-hidden rounded-xl border shadow">
+        <table className="w-full border-collapse">
+          <tbody className="divide-y">
+            <tr>
+              <th className="w-1/3 bg-gray-100 px-4 py-3 text-left text-sm font-semibold">
+                単曲VF
+              </th>
+              <td className="className= border border-gray-300 rounded-lg px-3 py-2">
+
+                {vf}
+              </td>
+            </tr>
+            <tr>
+              <th className="w-1/3 bg-gray-100 px-4 py-3 text-left text-sm font-semibold">
+                単曲VF*50
+              </th>
+              <td className="border border-gray-300 rounded-lg px-3 py-2">
+
+                {(parseFloat(vf) * 50).toFixed(3)}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div >
   )
 }
