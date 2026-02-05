@@ -2,8 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "export",
-  basePath: '/volforce-calculate',
-  assetPrefix: '/volforce-calculate/',
+  basePath: '/volforce-calculator',
+  assetPrefix: '/volforce-calculator/',
   images: {
     unoptimized: true,
   },
