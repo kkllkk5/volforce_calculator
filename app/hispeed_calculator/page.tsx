@@ -18,16 +18,23 @@ export default function Hispeed_Calculator_Page() {
 
     const handleRun = () => {
         const base = parseFloat(form.usualSpeed || '0')
-        const mul = parseFloat(form.multiplier || '0')
-        if (!isFinite(base) || !isFinite(mul)) {
-            setResult('数値を入力してください')
+        const bpmMin = parseFloat(form.bpmMin || '0')
+        const bpmMax = parseFloat(form.bpmMax || '0')
+
+        if (!isFinite(base) || !isFinite(bpmMin) || !isFinite(bpmMax) || bpmMin === 0 || bpmMax === 0) {
+            setResult('数値を正しく入力してください（BPM最小・最大は0以外）')
             return
         }
-        const calc = (base * mul).toFixed(2)
+
+        // align が 'min' のときは従来通り (bpmMax / bpmMin)
+        // align が 'max' のときは最大と最小を反対にして計算 (bpmMin / bpmMax)
+        const ratio = align === 'min' ? (bpmMax / bpmMin) : (bpmMin / bpmMax)
+        const calc = (base * ratio).toFixed(2)
         const bpmRange = `${form.bpmMin || '−'} ～ ${form.bpmMax || '−'}`
         const aligned = align === 'min' ? `${form.bpmMin || '−'} (最小)` : `${form.bpmMax || '−'} (最大)`
-        setResult(`計算結果: ${calc} （普段のハイスピ ${base} × 倍率 ${mul}） — BPM: ${bpmRange} — 合わせるBPM: ${aligned}`)
-        console.log('実行:', { ...form, align, calc })
+
+        setResult(`計算結果: ${calc} （普段のハイスピ ${base} × 比率 ${ratio.toFixed(2)}） — BPM: ${bpmRange} — 合わせるBPM: ${aligned}`)
+        console.log('実行:', { ...form, align, ratio, calc })
     }
 
     const handleReset = () => {
@@ -47,7 +54,10 @@ export default function Hispeed_Calculator_Page() {
                 <section className="bg-white/80 backdrop-blur-sm border border-slate-200 rounded-2xl shadow p-6">
                     <div className="mb-4">
                         <h2 className="text-lg font-semibold text-slate-900">カスタム入力</h2>
-                        <p className="text-sm text-slate-500">BPMは最小/最大を入力してください。普段のハイスピードを指定し、倍率を設定して実行してください。</p>
+                        <p className="text-sm text-slate-500">例:ENDYMION（メインBPM220）の高速（BPM440）を普段のハイスピにしたい場合</p>
+                        <p className="text-sm text-slate-500">BPM(最小)→220</p>
+                        <p className="text-sm text-slate-500">BPM(最大)→440</p>
+                        <p className="text-sm text-slate-500">ラジオボタン→最大</p>
                     </div>
 
                     {/* 横2列 × 縦3行 の入力グリッド（目標削除、基本速度→普段のハイスピードへ変更） */}
