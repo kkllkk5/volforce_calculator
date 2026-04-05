@@ -3,13 +3,13 @@ import { useState } from 'react'
 
 export default function Hispeed_Calculator_Page() {
     const [form, setForm] = useState({
-        level: '',
-        bpm: '',
-        baseSpeed: '',
+        bpmMin: '',
+        bpmMax: '',
+        usualSpeed: '',
         multiplier: '',
-        target: '',
         note: ''
     })
+    const [align, setAlign] = useState<'min' | 'max'>('min')
     const [result, setResult] = useState<string | null>(null)
 
     const handleChange = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -17,16 +17,23 @@ export default function Hispeed_Calculator_Page() {
     }
 
     const handleRun = () => {
-        // 簡易的な例: 基本速度 * 倍率 を計算して表示
-        const base = parseFloat(form.baseSpeed || '0')
+        const base = parseFloat(form.usualSpeed || '0')
         const mul = parseFloat(form.multiplier || '0')
         if (!isFinite(base) || !isFinite(mul)) {
             setResult('数値を入力してください')
             return
         }
         const calc = (base * mul).toFixed(2)
-        setResult(`計算結果: ${calc} （基本速度 ${base} × 倍率 ${mul}）`)
-        console.log('実行:', { ...form, calc })
+        const bpmRange = `${form.bpmMin || '−'} ～ ${form.bpmMax || '−'}`
+        const aligned = align === 'min' ? `${form.bpmMin || '−'} (最小)` : `${form.bpmMax || '−'} (最大)`
+        setResult(`計算結果: ${calc} （普段のハイスピ ${base} × 倍率 ${mul}） — BPM: ${bpmRange} — 合わせるBPM: ${aligned}`)
+        console.log('実行:', { ...form, align, calc })
+    }
+
+    const handleReset = () => {
+        setForm({ bpmMin: '', bpmMax: '', usualSpeed: '', multiplier: '', note: '' })
+        setAlign('min')
+        setResult(null)
     }
 
     return (
@@ -38,47 +45,44 @@ export default function Hispeed_Calculator_Page() {
                 </header>
 
                 <section className="bg-white/80 backdrop-blur-sm border border-slate-200 rounded-2xl shadow p-6">
-                    <div className="mb-4 flex items-center justify-between">
-                        <div>
-                            <h2 className="text-lg font-semibold text-slate-900">カスタム入力</h2>
-                            <p className="text-sm text-slate-500">以下に譜面情報を入力して「実行」を押してください。</p>
-                        </div>
+                    <div className="mb-4">
+                        <h2 className="text-lg font-semibold text-slate-900">カスタム入力</h2>
+                        <p className="text-sm text-slate-500">BPMは最小/最大を入力してください。普段のハイスピードを指定し、倍率を設定して実行してください。</p>
                     </div>
 
-                    <div className="mt-2 grid gap-4">
-                        <div className="text-sm text-slate-600">
-                            目安が必要な場合はトップページの推奨表や過去の設定を参照してください。ここでは直接計算できるカスタム入力を用意しています。
-                        </div>
-                    </div>
-
-                    {/* 横2列 × 縦3行 の入力グリッド */}
+                    {/* 横2列 × 縦3行 の入力グリッド（目標削除、基本速度→普段のハイスピードへ変更） */}
                     <div className="mt-6">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="flex flex-col">
-                                <label className="text-xs text-slate-600 mb-1">レベル</label>
-                                <input value={form.level} onChange={handleChange('level')} className="rounded-md border border-slate-200 px-3 py-2 text-sm bg-white/90" placeholder="例: 12" />
-                            </div>
-                            <div className="flex flex-col">
-                                <label className="text-xs text-slate-600 mb-1">BPM</label>
-                                <input value={form.bpm} onChange={handleChange('bpm')} className="rounded-md border border-slate-200 px-3 py-2 text-sm bg-white/90" placeholder="例: 160" />
+                                <label className="text-xs text-slate-600 mb-1">BPM（最小）</label>
+                                <input value={form.bpmMin} onChange={handleChange('bpmMin')} className="rounded-md border border-slate-200 px-3 py-2 text-sm bg-white/90" placeholder="例: 120" />
                             </div>
 
                             <div className="flex flex-col">
-                                <label className="text-xs text-slate-600 mb-1">基本速度</label>
-                                <input value={form.baseSpeed} onChange={handleChange('baseSpeed')} className="rounded-md border border-slate-200 px-3 py-2 text-sm bg-white/90" placeholder="例: 1.0" />
-                            </div>
-                            <div className="flex flex-col">
-                                <label className="text-xs text-slate-600 mb-1">倍率</label>
-                                <input value={form.multiplier} onChange={handleChange('multiplier')} className="rounded-md border border-slate-200 px-3 py-2 text-sm bg-white/90" placeholder="例: 1.8" />
+                                <label className="text-xs text-slate-600 mb-1">BPM（最大）</label>
+                                <input value={form.bpmMax} onChange={handleChange('bpmMax')} className="rounded-md border border-slate-200 px-3 py-2 text-sm bg-white/90" placeholder="例: 180" />
                             </div>
 
                             <div className="flex flex-col">
-                                <label className="text-xs text-slate-600 mb-1">目標 HI-SPEED</label>
-                                <input value={form.target} onChange={handleChange('target')} className="rounded-md border border-slate-200 px-3 py-2 text-sm bg-white/90" placeholder="任意" />
+                                <label className="text-xs text-slate-600 mb-1">普段のハイスピード</label>
+                                <input value={form.usualSpeed} onChange={handleChange('usualSpeed')} className="rounded-md border border-slate-200 px-3 py-2 text-sm bg-white/90" placeholder="例: 1.0" />
                             </div>
-                            <div className="flex flex-col">
-                                <label className="text-xs text-slate-600 mb-1">メモ</label>
-                                <input value={form.note} onChange={handleChange('note')} className="rounded-md border border-slate-200 px-3 py-2 text-sm bg-white/90" placeholder="任意メモ" />
+
+                            <div /> {/* 空セル（レイアウト調整用） */}
+                        </div>
+
+                        {/* ラジオボタン：どちらのBPMを普段のハイスピに合わせますか */}
+                        <div className="mt-4">
+                            <p className="text-sm text-slate-700 mb-2">どちらのBPMを普段のハイスピに合わせますか</p>
+                            <div className="flex items-center gap-4">
+                                <label className="inline-flex items-center gap-2 text-sm">
+                                    <input type="radio" name="alignBpm" checked={align === 'min'} onChange={() => setAlign('min')} className="h-4 w-4 text-sky-600" />
+                                    <span className="text-slate-600">最小</span>
+                                </label>
+                                <label className="inline-flex items-center gap-2 text-sm">
+                                    <input type="radio" name="alignBpm" checked={align === 'max'} onChange={() => setAlign('max')} className="h-4 w-4 text-sky-600" />
+                                    <span className="text-slate-600">最大</span>
+                                </label>
                             </div>
                         </div>
 
@@ -86,7 +90,7 @@ export default function Hispeed_Calculator_Page() {
                             <button onClick={handleRun} className="inline-flex items-center justify-center rounded-md bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 text-sm font-medium shadow">
                                 実行
                             </button>
-                            <button onClick={() => { setForm({ level: '', bpm: '', baseSpeed: '', multiplier: '', target: '', note: '' }); setResult(null) }} className="inline-flex items-center justify-center rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 text-sm">
+                            <button onClick={handleReset} className="inline-flex items-center justify-center rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 text-sm">
                                 リセット
                             </button>
                             {result && <div className="ml-4 text-sm text-slate-600">{result}</div>}
@@ -94,7 +98,7 @@ export default function Hispeed_Calculator_Page() {
                     </div>
 
                     <div className="mt-4 text-xs text-slate-500">
-                        表は参考値です。実際の設定はプレイヤーの好みや譜面に合わせて調整してください。
+                        入力が空の場合は目安として扱われます。計算ロジックを変更したい場合は指示してください。
                     </div>
                 </section>
             </div>
